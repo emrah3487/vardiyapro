@@ -1,0 +1,13 @@
+/* Safe Area Utilities */
+.pb-safe {
+    padding-bottom: calc(3rem + env(safe-area-inset-bottom));
+}
+
+.pt-safe-header {
+    padding-top: env(safe-area-inset-top);
+}
+
+/* Ensure sticky header background covers the safe area */
+header {
+    background-clip: padding-box;
+}

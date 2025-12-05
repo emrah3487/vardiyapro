@@ -1,0 +1,49 @@
+export interface Holiday {
+    date: string; // YYYY-MM-DD
+    name: string;
+}
+
+export const TURKEY_HOLIDAYS: Holiday[] = [
+    // 2024
+    { date: '2024-01-01', name: 'Yılbaşı' },
+    { date: '2024-04-09', name: 'Ramazan Bayramı Arifesi' },
+    { date: '2024-04-10', name: 'Ramazan Bayramı 1. Gün' },
+    { date: '2024-04-11', name: 'Ramazan Bayramı 2. Gün' },
+    { date: '2024-04-12', name: 'Ramazan Bayramı 3. Gün' },
+    { date: '2024-04-23', name: 'Ulusal Egemenlik ve Çocuk Bayramı' },
+    { date: '2024-05-01', name: 'Emek ve Dayanışma Günü' },
+    { date: '2024-05-19', name: 'Atatürk\'ü Anma, Gençlik ve Spor Bayramı' },
+    { date: '2024-06-15', name: 'Kurban Bayramı Arifesi' },
+    { date: '2024-06-16', name: 'Kurban Bayramı 1. Gün' },
+    { date: '2024-06-17', name: 'Kurban Bayramı 2. Gün' },
+    { date: '2024-06-18', name: 'Kurban Bayramı 3. Gün' },
+    { date: '2024-06-19', name: 'Kurban Bayramı 4. Gün' },
+    { date: '2024-07-15', name: 'Demokrasi ve Milli Birlik Günü' },
+    { date: '2024-08-30', name: 'Zafer Bayramı' },
+    { date: '2024-10-28', name: 'Cumhuriyet Bayramı Arifesi' },
+    { date: '2024-10-29', name: 'Cumhuriyet Bayramı' },
+
+    // 2025
+    { date: '2025-01-01', name: 'Yılbaşı' },
+    { date: '2025-03-29', name: 'Ramazan Bayramı Arifesi' },
+    { date: '2025-03-30', name: 'Ramazan Bayramı 1. Gün' },
+    { date: '2025-03-31', name: 'Ramazan Bayramı 2. Gün' },
+    { date: '2025-04-01', name: 'Ramazan Bayramı 3. Gün' },
+    { date: '2025-04-23', name: 'Ulusal Egemenlik ve Çocuk Bayramı' },
+    { date: '2025-05-01', name: 'Emek ve Dayanışma Günü' },
+    { date: '2025-05-19', name: 'Atatürk\'ü Anma, Gençlik ve Spor Bayramı' },
+    { date: '2025-06-05', name: 'Kurban Bayramı Arifesi' },
+    { date: '2025-06-06', name: 'Kurban Bayramı 1. Gün' },
+    { date: '2025-06-07', name: 'Kurban Bayramı 2. Gün' },
+    { date: '2025-06-08', name: 'Kurban Bayramı 3. Gün' },
+    { date: '2025-06-09', name: 'Kurban Bayramı 4. Gün' },
+    { date: '2025-07-15', name: 'Demokrasi ve Milli Birlik Günü' },
+    { date: '2025-08-30', name: 'Zafer Bayramı' },
+    { date: '2025-10-28', name: 'Cumhuriyet Bayramı Arifesi' },
+    { date: '2025-10-29', name: 'Cumhuriyet Bayramı' },
+];
+
+export const getHoliday = (date: string): string | null => {
+    const holiday = TURKEY_HOLIDAYS.find(h => h.date === date);
+    return holiday ? holiday.name : null;
+};

@@ -3,11 +3,12 @@ import {
   Scale, Moon, Trash2, RefreshCw, Maximize2, Download,
   Sliders, UserPlus, Stethoscope, Users2, BarChart2, ShieldCheck,
   Table2, TrendingUp, AlertTriangle, Loader2, Plus, X,
-  CalendarDays, CheckCircle2, User, Save, Phone, Info, Briefcase, Edit, History, Archive, ArrowRight, Printer, Pencil, Lock, Upload, LogOut, Key, CalendarClock
+  CalendarDays, CheckCircle2, User, Save, Phone, Info, Briefcase, Edit, History, Archive, ArrowRight, Printer, Pencil, Lock, Upload, LogOut, Key, CalendarClock, Bell
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Staff, RosterDay, Rule, RuleType, ReportStat, ShiftAssignment, RosterHistoryItem, LeaveRecord, ShiftType } from './types';
 import { generateInitialRoster, calculateStats, getStandardCycleShift } from './services/scheduler';
+import { getHoliday } from './services/holidays';
 
 import ExcelJS from 'exceljs';
 import saveAs from 'file-saver';
@@ -248,7 +249,26 @@ const App: React.FC = () => {
       const newRoster = generateInitialRoster(startDate, dayCount, staff, overtimePool, leaves);
       setRoster(newRoster);
       setIsGenerating(false);
+
+      if (Notification.permission === 'granted') {
+        new Notification('VardiyaPro', {
+          body: `${newRoster.length} günlük yeni vardiya listesi oluşturuldu.`,
+          icon: '/icon-192.png' // Assuming this exists or generic
+        });
+      }
     }, 600);
+  };
+
+  const handleRequestNotificationPermission = () => {
+    if (!('Notification' in window)) {
+      alert("Tarayıcınız bildirimleri desteklemiyor.");
+      return;
+    }
+    Notification.requestPermission().then((permission) => {
+      if (permission === 'granted') {
+        new Notification('VardiyaPro', { body: 'Bildirimler aktif!' });
+      }
+    });
   };
 
 
@@ -723,7 +743,16 @@ const App: React.FC = () => {
               style={{ printColorAdjust: 'exact', WebkitPrintColorAdjust: 'exact' }}
             >
               <div className="font-semibold flex items-center justify-between print:justify-start print:gap-1">
-                <span>{s.name} {omerSantralNote}</span>
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditStaffClick(s);
+                  }}
+                  className="hover:underline cursor-pointer hover:text-indigo-700 transition-colors"
+                  title="Personel bilgilerini düzenle"
+                >
+                  {s.name} {omerSantralNote}
+                </span>
                 {isClickable && <Edit className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity print:hidden" />}
               </div>
 
@@ -778,9 +807,9 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans pb-12 print:bg-white print:pb-0 flex flex-col">
+    <div className="min-h-screen bg-slate-50 font-sans pb-safe print:bg-white print:pb-0 flex flex-col">
       {/* HEADER */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm print:hidden">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm print:hidden pt-safe-header">
         <div className="max-w-[1600px] mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200 text-white">
@@ -925,6 +954,13 @@ const App: React.FC = () => {
                         Yazdır
                       </button>
                     </div>
+                    <button
+                      onClick={handleRequestNotificationPermission}
+                      className="w-full mt-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium py-2.5 rounded-lg transition-all flex items-center justify-center gap-2"
+                    >
+                      <Bell className="w-4 h-4" />
+                      Bildirimleri Aç
+                    </button>
                   </div>
                 </div>
 
@@ -1138,6 +1174,7 @@ const App: React.FC = () => {
                     <input
                       type="text"
                       placeholder="Unvan"
+                      list="title-options"
                       className="flex-1 border border-slate-200 rounded-lg p-2 text-sm bg-white text-slate-800"
                       value={staffForm.title}
                       onChange={e => setStaffForm({ ...staffForm, title: e.target.value })}
@@ -1253,7 +1290,12 @@ const App: React.FC = () => {
                             <tr key={idx} className={`${isWeekend ? 'bg-orange-50/30 print:bg-transparent' : ''} print:break-inside-avoid`}>
                               <td className="px-4 py-3 border-b border-slate-100 align-top print:border-slate-300">
                                 <div className="font-medium text-slate-700 print:text-black">{date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}</div>
-                                <div className="text-xs text-slate-400 font-medium uppercase print:text-slate-600">{date.toLocaleDateString('tr-TR', { weekday: 'long' })}</div>
+                                <div className="text-xs text-slate-400 font-medium uppercase print:text-slate-600">
+                                  {date.toLocaleDateString('tr-TR', { weekday: 'long' })}
+                                  {getHoliday(day.date) && (
+                                    <div className="text-[10px] text-rose-500 font-bold normal-case mt-0.5">{getHoliday(day.date)}</div>
+                                  )}
+                                </div>
                               </td>
                               <td className="px-4 py-2 border-b border-slate-100 align-top print:border-slate-300">
                                 {renderRosterCell(day, 'Gündüz', false)}
@@ -1393,7 +1435,12 @@ const App: React.FC = () => {
                             <tr key={idx} className="print:break-inside-avoid">
                               <td className="px-4 py-3 border-b border-slate-100 align-top print:border-slate-300">
                                 <div className="font-medium text-slate-700 print:text-black">{date.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long' })}</div>
-                                <div className="text-xs text-slate-400 font-medium uppercase print:text-slate-600">{date.toLocaleDateString('tr-TR', { weekday: 'short' })}</div>
+                                <div className="text-xs text-slate-400 font-medium uppercase print:text-slate-600">
+                                  {date.toLocaleDateString('tr-TR', { weekday: 'short' })}
+                                  {getHoliday(day.date) && (
+                                    <div className="text-[10px] text-rose-500 font-bold normal-case mt-0.5 block">{getHoliday(day.date)}</div>
+                                  )}
+                                </div>
                               </td>
                               <td className="px-4 py-2 border-b border-slate-100 align-top print:border-slate-300">
                                 {renderRosterCell(day, 'Gündüz', true)}
@@ -1494,6 +1541,7 @@ const App: React.FC = () => {
                 <label className="block text-xs font-semibold text-slate-500 mb-1">Unvan</label>
                 <input
                   type="text"
+                  list="title-options"
                   className="w-full border border-slate-200 rounded-lg p-2 text-sm bg-white text-slate-800"
                   value={editStaffForm.title}
                   onChange={e => setEditStaffForm({ ...editStaffForm, title: e.target.value })}
@@ -1584,6 +1632,13 @@ const App: React.FC = () => {
         </div>
       )}
 
+      <datalist id="title-options">
+        <option value="Personel" />
+        <option value="Santral" />
+        <option value="Grup Şefi" />
+        <option value="Güvenlik" />
+        <option value="Amir" />
+      </datalist>
     </div>
   );
 };
